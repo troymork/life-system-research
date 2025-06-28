@@ -155,8 +155,8 @@ We welcome contributions in multiple areas:
 
 ### Research Team
 
-- **Manus AI** - Lead Researcher & Systems Analyst
-- **Troy Mork** - Co-Researcher & Implementation Strategist
+- **Troy Mork** - Primary Researcher & LIFE System Creator
+- **Manus AI** - Technical Implementation Assistant
 
 ## 📄 License
 
@@ -182,7 +182,7 @@ If you use this research in your work, please cite:
 ```bibtex
 @misc{lifesystem2024,
   title={The LIFE System: A Comprehensive Framework for Regenerative Socio-Economic Transformation},
-  author={Manus AI and Troy Mork},
+  author={Troy Mork and Manus AI},
   year={2024},
   publisher={LIFE System Research Consortium},
   url={https://github.com/life-system/research}

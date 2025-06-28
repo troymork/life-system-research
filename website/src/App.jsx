@@ -463,12 +463,12 @@ function ResearchPage() {
               <CardContent>
                 <div className="space-y-3">
                   <div>
-                    <p className="font-medium">Manus AI</p>
-                    <p className="text-sm text-gray-600">Lead Researcher & Systems Analyst</p>
+                    <p className="font-medium">Troy Mork</p>
+                    <p className="text-sm text-gray-600">Primary Researcher & LIFE System Creator</p>
                   </div>
                   <div>
-                    <p className="font-medium">Troy Mork</p>
-                    <p className="text-sm text-gray-600">Co-Researcher & Implementation Strategist</p>
+                    <p className="font-medium">Manus AI</p>
+                    <p className="text-sm text-gray-600">Technical Implementation Assistant</p>
                   </div>
                 </div>
               </CardContent>
@@ -1431,14 +1431,14 @@ function CollaborationPage() {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <h4 className="font-medium">Manus AI</h4>
-                      <p className="text-sm text-gray-600">Lead Researcher & Systems Analyst</p>
+                      <h4 className="font-medium">Troy Mork</h4>
+                      <p className="text-sm text-gray-600">Primary Researcher & LIFE System Creator</p>
                       <p className="text-sm text-gray-600">research@lifesystem.org</p>
                     </div>
                     <div>
-                      <h4 className="font-medium">Troy Mork</h4>
-                      <p className="text-sm text-gray-600">Co-Researcher & Implementation Strategist</p>
-                      <p className="text-sm text-gray-600">implementation@lifesystem.org</p>
+                      <h4 className="font-medium">Manus AI</h4>
+                      <p className="text-sm text-gray-600">Technical Implementation Assistant</p>
+                      <p className="text-sm text-gray-600">technical@lifesystem.org</p>
                     </div>
                   </div>
                 </CardContent>
