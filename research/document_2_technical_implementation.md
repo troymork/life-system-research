@@ -4,6 +4,7 @@
 **Version 1.0**  
 **Author:** Troy Mork (Troymork@gmail.com)  
 **Date:** June 28, 2025  
+**Research Tools:** Manus AI assisted in technical analysis and documentation  
 
 ---
 

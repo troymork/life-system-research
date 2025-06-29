@@ -1235,6 +1235,12 @@ The complete simulation code implementation is provided below, including all age
 
 ---
 
+## Acknowledgments
+
+The author acknowledges the use of Manus AI as a research and analysis tool in the development of this comprehensive study. Manus AI assisted in simulation modeling, data analysis, literature synthesis, and document preparation while the conceptual framework, research design, and conclusions remain the intellectual contribution of the author.
+
+---
+
 **Corresponding Author:**  
 Troy Mork (Troymork@gmail.com)  
 Email: Troymork@gmail.com  

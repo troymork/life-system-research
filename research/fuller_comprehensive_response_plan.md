@@ -4,6 +4,7 @@
 
 **Author:** Troy Mork (Troymork@gmail.com)  
 **Date:** June 28, 2025  
+**Research Tools:** Manus AI assisted in analysis and documentation  
 
 ## Executive Summary
 
