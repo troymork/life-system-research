@@ -2,8 +2,8 @@
 ## Comprehensive Engineering Specifications for Regenerative Economics
 
 **Version 1.0**  
-**Author:** Manus AI  
-**Date:** June 2025  
+**Author:** Troy Mork (Troymork@gmail.com)  
+**Date:** June 28, 2025  
 
 ---
 
