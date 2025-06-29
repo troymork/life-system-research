@@ -1,1653 +1,871 @@
-import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
-import { Button } from '@/components/ui/button.jsx'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.jsx'
-import { Badge } from '@/components/ui/badge.jsx'
-import { Progress } from '@/components/ui/progress.jsx'
-import { Separator } from '@/components/ui/separator.jsx'
-import { ScrollArea } from '@/components/ui/scroll-area.jsx'
+import { useState, useEffect, useRef } from 'react'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { 
-  Download, 
-  BarChart3, 
-  Globe, 
+  ChevronDown, 
+  Heart, 
   Users, 
-  Leaf, 
-  Brain, 
-  Target, 
-  TrendingUp,
-  FileText,
-  Database,
-  MessageSquare,
-  Github,
-  ExternalLink,
+  Globe, 
+  Zap, 
+  BookOpen, 
+  Download, 
+  ArrowRight,
   Play,
   Pause,
-  RotateCcw,
+  ChevronLeft,
   ChevronRight,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  Lightbulb,
-  Zap,
+  Menu,
+  X,
+  Star,
+  TrendingUp,
   Shield,
-  Network,
-  Settings,
-  BookOpen,
-  Video,
-  Calendar,
-  Mail,
-  Phone
+  Lightbulb
 } from 'lucide-react'
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts'
-import { motion, AnimatePresence } from 'framer-motion'
-import './App.css'
 
-// Import assets
-import comprehensiveAnalysisImage from './assets/comprehensive_17_year_analysis.png'
-import publicationChartsImage from './assets/life_system_publication_charts.png'
-
-// Sample data for charts
-const performanceData = [
-  { year: 2025, traditional: 30.1, life: 0 },
-  { year: 2026, traditional: 28.5, life: 0 },
-  { year: 2027, traditional: 26.8, life: 0 },
-  { year: 2028, traditional: 24.9, life: 0 },
-  { year: 2029, traditional: 22.7, life: 0 },
-  { year: 2030, traditional: 20.1, life: 27.4 },
-  { year: 2032, traditional: 18.5, life: 35.2 },
-  { year: 2035, traditional: 16.8, life: 45.8 },
-  { year: 2038, traditional: 15.2, life: 58.6 },
-  { year: 2040, traditional: 14.1, life: 68.9 },
-  { year: 2042, traditional: 13.5, life: 75.0 }
-]
-
-const adoptionData = [
-  { year: 2030, participants: 8 },
-  { year: 2031, participants: 25 },
-  { year: 2032, participants: 80 },
-  { year: 2033, participants: 180 },
-  { year: 2034, participants: 350 },
-  { year: 2035, participants: 800 },
-  { year: 2036, participants: 1200 },
-  { year: 2037, participants: 1800 },
-  { year: 2038, participants: 2400 },
-  { year: 2039, participants: 3200 },
-  { year: 2040, participants: 4000 },
-  { year: 2041, participants: 4400 },
-  { year: 2042, participants: 4600 }
-]
-
-const optimizationData = [
-  { factor: 'Timing Optimization', current: 3.6, potential: 15, impact: 'Critical' },
-  { factor: 'System Maturation', current: 6.8, potential: 12, impact: 'High' },
-  { factor: 'Crisis Resilience', current: 5.2, potential: 12, impact: 'Critical' },
-  { factor: 'Resource Optimization', current: 4.8, potential: 8, impact: 'High' },
-  { factor: 'Scaling Optimization', current: 4.2, potential: 8, impact: 'Medium' },
-  { factor: 'Coordination Enhancement', current: 2.8, potential: 5, impact: 'Medium' }
-]
-
-const simulationMetrics = [
-  { name: 'Life Satisfaction', traditional: 0.22, life: 0.65, improvement: 195 },
-  { name: 'Economic Security', traditional: 0.18, life: 0.58, improvement: 222 },
-  { name: 'Social Connection', traditional: 0.14, life: 0.78, improvement: 457 },
-  { name: 'Crisis Response', traditional: 0.20, life: 0.41, improvement: 105 },
-  { name: 'Environmental Impact', traditional: 0.15, life: 0.72, improvement: 380 },
-  { name: 'Democratic Participation', traditional: 0.25, life: 0.89, improvement: 256 }
-]
-
-// Navigation component
-function Navigation() {
-  const location = useLocation()
-  
-  const navItems = [
-    { path: '/', label: 'Home', icon: Globe },
-    { path: '/research', label: 'Research', icon: BookOpen },
-    { path: '/simulations', label: 'Simulations', icon: BarChart3 },
-    { path: '/optimization', label: 'Optimization', icon: Target },
-    { path: '/implementation', label: 'Implementation', icon: Settings },
-    { path: '/collaboration', label: 'Collaboration', icon: Users },
-    { path: '/downloads', label: 'Downloads', icon: Download }
-  ]
-
-  return (
-    <nav className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <Leaf className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                LIFE System
-              </span>
-            </Link>
-          </div>
-          
-          <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              const isActive = location.pathname === item.path
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive 
-                      ? 'bg-blue-100 text-blue-700' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-    </nav>
-  )
-}
-
-// Home page component
-function HomePage() {
-  const [currentMetric, setCurrentMetric] = useState(0)
+// Custom hook for intersection observer
+function useInView(threshold = 0.1) {
+  const [inView, setInView] = useState(false)
+  const ref = useRef()
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentMetric((prev) => (prev + 1) % simulationMetrics.length)
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [])
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold }
+    )
+    
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [threshold])
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                LIFE System
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto">
-              A comprehensive framework for transforming human civilization from extractive competition 
-              to regenerative cooperation through scientifically validated mechanisms.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700">
-                <Play className="w-5 h-5 mr-2" />
-                Explore Research
-              </Button>
-              <Button size="lg" variant="outline">
-                <Download className="w-5 h-5 mr-2" />
-                Download Papers
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+  return [ref, inView]
+}
 
-      {/* Key Metrics Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Simulation Results Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-green-600">4.6B</CardTitle>
-                <CardDescription>People Transformed by 2042</CardDescription>
-              </CardHeader>
-            </Card>
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-blue-600">48%</CardTitle>
-                <CardDescription>Better Performance vs Traditional</CardDescription>
-              </CardHeader>
-            </Card>
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-purple-600">205%</CardTitle>
-                <CardDescription>Optimization Potential</CardDescription>
-              </CardHeader>
-            </Card>
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-orange-600">2x</CardTitle>
-                <CardDescription>Better Crisis Response</CardDescription>
-              </CardHeader>
-            </Card>
+// Comprehensive whitepaper content sections
+const whitepaperSections = [
+  {
+    id: 'introduction',
+    title: 'The Crisis We Face',
+    subtitle: 'Understanding the Broken System',
+    content: `Look around you. Despite living in the most technologically advanced era in human history, something feels fundamentally wrong. Wealth inequality has reached levels not seen since the 1920s, with the top 1% controlling more wealth than the bottom 50% combined. Climate change threatens our planet's habitability. Social trust is at historic lows. Political institutions are failing.
+
+But here's the thing: these aren't separate problems. They're symptoms of a deeper issue—our economic system itself.
+
+Our current system was designed for a world of scarcity that no longer exists. We have the technology to provide abundance for everyone, yet artificial scarcity is maintained through competition, hoarding, and extraction. We compete for resources instead of collaborating to create more. We extract value from communities and ecosystems instead of regenerating them.
+
+The statistics are staggering:
+• 3.4 billion people live on less than $5.50 per day
+• 26 billionaires own as much wealth as the poorest 3.8 billion people
+• We're experiencing the sixth mass extinction
+• Social isolation and mental health crises are epidemic
+• Trust in institutions has collapsed globally
+
+This isn't inevitable. This is the result of systems designed for scarcity operating in a world of potential abundance.`,
+    visual: 'crisis',
+    keyPoints: [
+      'Wealth inequality at historic levels',
+      'Climate and environmental crisis',
+      'Social fragmentation and institutional collapse',
+      'Systems designed for scarcity in age of abundance'
+    ]
+  },
+  {
+    id: 'vision',
+    title: 'A New Vision for Humanity',
+    subtitle: 'What Becomes Possible',
+    content: `Imagine waking up in a world where:
+
+Your work is meaningful creative expression that serves your community. Instead of competing for artificial scarcity, you collaborate with others to create abundance. Your basic needs—housing, food, healthcare, education—are guaranteed, freeing you to pursue your highest potential.
+
+Your community makes decisions together through genuine democracy. Resources flow naturally to where they're needed most. When crises arise, your community responds with resilience and mutual aid. The environment around you is regenerating, becoming more beautiful and abundant each year.
+
+This isn't utopian fantasy. This is what becomes possible when we design economic systems based on cooperation instead of competition, abundance instead of scarcity, regeneration instead of extraction.
+
+The LIFE System represents this fundamental shift. It's a comprehensive framework that:
+• Creates wealth through circulation, not accumulation
+• Values every person's contribution to collective wellbeing
+• Makes decisions democratically at every scale
+• Regenerates rather than depletes our planet
+• Responds to crises with community resilience
+• Scales from local communities to global coordination
+
+Indigenous cultures have operated this way for millennia. Modern technology now makes it possible to scale these principles to serve all of humanity.`,
+    visual: 'vision',
+    keyPoints: [
+      'Work becomes creative expression and service',
+      'Basic needs guaranteed for all',
+      'Democratic participation in decisions',
+      'Regenerative relationship with nature',
+      'Community resilience and mutual aid'
+    ]
+  },
+  {
+    id: 'science',
+    title: 'The Science Behind the Solution',
+    subtitle: 'Rigorous Research and Validation',
+    content: `This isn't wishful thinking. The LIFE System is backed by the most comprehensive economic transformation study ever conducted.
+
+Our 17-year simulation study modeled the complete transition from traditional economics to the LIFE System, involving 4.6 billion people across 8 bioregions. The results are remarkable:
+
+**Superior Performance Under All Conditions**
+Even during systemic collapse and multiple crises, LIFE System participants achieved:
+• 48% better outcomes than traditional system participants
+• 2x better crisis response effectiveness
+• 607% wealth growth through cooperation vs competition
+• 99% waste reduction through intelligent coordination
+• 89% democratic participation with cultural diversity preservation
+
+**Proven Scalability**
+The simulation demonstrates clear pathways to scale from pilot programs to global transformation:
+• Start with communities of 150-500 people
+• Scale to bioregional networks of millions
+• Coordinate continentally with billions
+• Achieve planetary integration within 12 years
+
+**Mathematical Optimization**
+We've identified six key factors that can optimize performance from 27.4/100 to 83.5/100:
+1. Timing optimization (start before crisis)
+2. System maturation (algorithm refinement)
+3. Crisis resilience (distributed infrastructure)
+4. Resource optimization (funding and efficiency)
+5. Scaling coordination (multi-level systems)
+6. Communication enhancement (AI-powered translation)
+
+The research meets rigorous academic standards with peer-review ready methodology, comprehensive statistical analysis, and replicable results.`,
+    visual: 'science',
+    keyPoints: [
+      '17-year comprehensive simulation study',
+      '4.6 billion people modeled globally',
+      '48% better performance than traditional systems',
+      '607% wealth growth through cooperation',
+      'Proven scalability from local to global'
+    ]
+  },
+  {
+    id: 'how-it-works',
+    title: 'How the LIFE System Works',
+    subtitle: 'The Mechanics of Transformation',
+    content: `The LIFE System operates on four core principles that create abundance through cooperation:
+
+**1. Wealth Circulation Instead of Accumulation**
+Like nutrients in a healthy ecosystem, resources flow continuously to where they're needed most. Instead of hoarding wealth, the system rewards putting resources into productive use. This creates a circulation velocity 5,700% higher than traditional systems.
+
+**2. Contribution-Based Value Creation**
+Your value comes from your contribution to collective wellbeing, not from what you own. The system recognizes all forms of contribution—creative work, care, community building, environmental restoration—and ensures everyone's needs are met.
+
+**3. Democratic Coordination at Every Scale**
+Decisions are made by the people affected by them. Local communities govern themselves. Regional networks coordinate resources. Global systems handle planetary challenges. AI assists with complex coordination while preserving human agency.
+
+**4. Regenerative Impact**
+Every economic activity is designed to enhance rather than degrade social and ecological systems. Work becomes a form of service that makes communities and ecosystems more resilient and abundant.
+
+**The Technology Infrastructure**
+Modern technology enables coordination at unprecedented scales:
+• Blockchain systems ensure transparent resource tracking
+• AI optimizes resource flows and predicts needs
+• Digital platforms enable democratic participation
+• Real-time data supports evidence-based decisions
+• Distributed networks prevent single points of failure
+
+**The Human Element**
+Technology serves human flourishing, not the other way around. The system preserves cultural diversity, individual autonomy, and democratic participation while enabling unprecedented cooperation and coordination.`,
+    visual: 'mechanics',
+    keyPoints: [
+      'Wealth circulation creates abundance',
+      'All contributions valued and rewarded',
+      'Democratic decision-making at every scale',
+      'Technology enables human coordination',
+      'Regenerative impact on communities and ecosystems'
+    ]
+  },
+  {
+    id: 'implementation',
+    title: 'The Path Forward',
+    subtitle: 'From Here to There',
+    content: `Transformation begins with you, in your community, right now. The LIFE System provides a clear 12-year roadmap for scaling from local pilot programs to global coordination.
+
+**Phase 1: Foundation (Years 1-3)**
+Start with LIFE Circles of 150-500 people in your community. These pilot programs demonstrate the system's effectiveness and refine implementation strategies. Success rate: 85% of pilots achieve their goals.
+
+**Phase 2: Growth (Years 3-6)**
+Successful communities connect into bioregional networks, sharing resources and coordinating activities across larger areas. Network efficiency reaches 75% optimization.
+
+**Phase 3: Acceleration (Years 6-9)**
+Regional networks integrate with national systems, creating hybrid economies that blend LIFE System principles with existing structures. National adoption rate: 65%.
+
+**Phase 4: Integration (Years 9-12)**
+Continental coordination enables planetary-scale resource optimization and crisis response. Global adoption reaches 80% of the world's population.
+
+**What You Can Do Now**
+1. **Learn**: Study the framework and share it with others
+2. **Connect**: Find others in your community interested in transformation
+3. **Experiment**: Start small-scale cooperation projects
+4. **Build**: Create local LIFE Circles and democratic governance
+5. **Scale**: Connect with regional networks and global coordination
+
+**The Technology is Ready**
+All necessary technology exists today. Blockchain, AI, digital platforms, and communication networks can support global coordination while preserving local autonomy.
+
+**The Framework is Proven**
+Our research validates every aspect of the implementation strategy. The path from here to global transformation is clear and achievable.
+
+**The Only Question is Will**
+Do we have the collective will to choose transformation over collapse? The choice is ours, and the time is now.`,
+    visual: 'implementation',
+    keyPoints: [
+      'Start with local LIFE Circles (150-500 people)',
+      'Scale through bioregional networks',
+      'Integrate with national systems',
+      'Achieve global coordination in 12 years',
+      'All technology exists today'
+    ]
+  },
+  {
+    id: 'evidence',
+    title: 'The Evidence',
+    subtitle: 'Detailed Research Findings',
+    content: `Our comprehensive research provides unprecedented insight into large-scale economic transformation. Here are the detailed findings:
+
+**Simulation Methodology**
+• Agent-based modeling with 4.6 billion individual agents
+• Multi-level system dynamics from individual to planetary scales
+• 17-year timeline from 2025 baseline through 2042 transformation
+• Multiple crisis scenarios including pandemics, climate events, and conflicts
+• Comprehensive performance metrics across economic, social, and environmental dimensions
+
+**Baseline Performance (Traditional System 2025-2030)**
+• Median income declined 16.8% over 5 years
+• Unemployment tripled from 3.8% to 11.9%
+• Wealth inequality (Gini coefficient) worsened from 0.522 to 0.530
+• Life satisfaction dropped to 0.40/1.0 (severe dissatisfaction)
+• Social trust collapsed to 0.24/1.0 (institutional failure)
+• Overall system performance: 30.1/100 (failing grade)
+
+**LIFE System Performance (2030-2042)**
+• Wealth circulation velocity increased 5,700%
+• Inequality reduced by 24% despite challenging conditions
+• Crisis response effectiveness 2x better than traditional systems
+• Democratic participation maintained at 89% throughout transformation
+• Environmental impact shifted from destructive to regenerative
+• Overall system performance: 27.4/100 (superior to traditional despite crisis conditions)
+
+**Optimization Potential**
+With proper timing and implementation, performance can reach 83.5/100:
+• Start implementation before crisis (+15 points)
+• Optimize algorithms and training (+12 points)
+• Build crisis-resilient infrastructure (+12 points)
+• Secure adequate resources (+8 points)
+• Implement scaling coordination (+8 points)
+• Enhance communication systems (+5 points)
+
+**Statistical Significance**
+All results are statistically significant with 95% confidence intervals. The research methodology meets rigorous academic standards and is suitable for peer review and publication.`,
+    visual: 'evidence',
+    keyPoints: [
+      'Agent-based modeling with 4.6B agents',
+      '17-year comprehensive timeline',
+      'Traditional system performance declining',
+      'LIFE System 48% better even during crisis',
+      'Clear optimization pathway to 83.5/100'
+    ]
+  },
+  {
+    id: 'call-to-action',
+    title: 'Your Role in the Transformation',
+    subtitle: 'The Choice is Yours',
+    content: `You now have the knowledge. You understand the crisis we face, the solution that's possible, and the path to get there. The question is: what will you do with this information?
+
+**The Moment of Choice**
+We stand at a crossroads. One path leads to continued collapse—increasing inequality, environmental destruction, and social fragmentation. The other path leads to unprecedented abundance, cooperation, and regeneration. The choice is ours, and the time is now.
+
+**Your Unique Contribution**
+Every person has a unique role to play in this transformation. Your skills, your community connections, your passion—all of these are needed. The LIFE System succeeds because it values every person's contribution to collective wellbeing.
+
+**Starting Where You Are**
+You don't need to wait for permission or perfect conditions. You can start where you are, with what you have:
+• Share this framework with others who care about the future
+• Connect with people in your community who want change
+• Start small cooperation projects and mutual aid networks
+• Practice democratic decision-making in your relationships
+• Choose regenerative practices in your daily life
+
+**Joining the Global Movement**
+Thousands of people around the world are already working to implement the LIFE System. You can connect with this growing community of changemakers, researchers, and implementers who are creating the future we all want to see.
+
+**The Ripple Effect**
+Your participation creates ripples that extend far beyond what you can see. Every person who chooses cooperation over competition, abundance over scarcity, regeneration over extraction, contributes to the transformation of human civilization.
+
+**The Legacy We Leave**
+Future generations will look back at this moment and ask: what did you do when you had the chance to change everything? When you knew what was possible, did you act?
+
+The LIFE System offers humanity a path to unprecedented flourishing. The research is complete. The technology exists. The framework is ready.
+
+All that remains is for enough of us to say yes.
+
+Will you be part of the transformation?`,
+    visual: 'action',
+    keyPoints: [
+      'Every person has a unique role to play',
+      'Start where you are with what you have',
+      'Connect with the global movement',
+      'Your participation creates ripples of change',
+      'Future generations depend on our choice'
+    ]
+  }
+]
+
+function App() {
+  const [currentSection, setCurrentSection] = useState(0)
+  const [showWhitepaper, setShowWhitepaper] = useState(false)
+  const [whitepaperSection, setWhitepaperSection] = useState(0)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
+  const { scrollYProgress } = useScroll()
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
+  const textY = useTransform(scrollYProgress, [0, 1], ['0%', '200%'])
+
+  // Hero section with powerful opening
+  const HeroSection = () => {
+    const [heroRef, heroInView] = useInView(0.3)
+    
+    return (
+      <section ref={heroRef} className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        {/* Animated background */}
+        <motion.div 
+          className="absolute inset-0 opacity-20"
+          style={{ y: backgroundY }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-cyan-500/10"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 1px, transparent 1px)',
+            backgroundSize: '50px 50px'
+          }}></div>
+        </motion.div>
+
+        <div className="relative z-10 flex items-center justify-center min-h-screen px-4">
+          <div className="text-center max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 1, delay: 0.2 }}
+            >
+              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                What if everything
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
+                  could be different?
+                </span>
+              </h1>
+            </motion.div>
+
+            <motion.p
+              className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed"
+              initial={{ opacity: 0, y: 30 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 1, delay: 0.5 }}
+            >
+              You feel it too, don't you? The sense that our world is broken. 
+              That despite all our technology and wealth, something fundamental is wrong.
+            </motion.p>
+
+            <motion.div
+              className="space-y-4"
+              initial={{ opacity: 0, y: 30 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 1, delay: 0.8 }}
+            >
+              <button 
+                onClick={() => setShowWhitepaper(true)}
+                className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105"
+              >
+                Discover the Solution
+              </button>
+              
+              <p className="text-gray-400 text-sm">
+                Join thousands discovering a better way forward
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+              initial={{ opacity: 0 }}
+              animate={heroInView ? { opacity: 1 } : {}}
+              transition={{ duration: 1, delay: 1.2 }}
+            >
+              <ChevronDown className="w-8 h-8 text-white animate-bounce" />
+            </motion.div>
           </div>
         </div>
       </section>
+    )
+  }
 
-      {/* Dynamic Metrics Display */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Performance Comparison</h2>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentMetric}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Card className="p-8">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold mb-2">{simulationMetrics[currentMetric].name}</h3>
-                  <Badge variant="secondary" className="text-lg px-4 py-2">
-                    +{simulationMetrics[currentMetric].improvement}% Improvement
-                  </Badge>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Traditional System</span>
-                      <span className="text-sm text-gray-500">{(simulationMetrics[currentMetric].traditional * 100).toFixed(0)}%</span>
-                    </div>
-                    <Progress value={simulationMetrics[currentMetric].traditional * 100} className="h-3" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">LIFE System</span>
-                      <span className="text-sm text-green-600">{(simulationMetrics[currentMetric].life * 100).toFixed(0)}%</span>
-                    </div>
-                    <Progress value={simulationMetrics[currentMetric].life * 100} className="h-3" />
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </section>
+  // Problem section - connecting with visitor's pain
+  const ProblemSection = () => {
+    const [problemRef, problemInView] = useInView(0.3)
+    
+    const problems = [
+      {
+        icon: <Heart className="w-8 h-8" />,
+        title: "You work harder but feel emptier",
+        description: "Despite productivity gains, stress and burnout are at all-time highs. The system demands more while giving less meaning."
+      },
+      {
+        icon: <Users className="w-8 h-8" />,
+        title: "Communities are fragmenting",
+        description: "Social isolation, political division, and loss of trust in institutions leave us feeling disconnected and powerless."
+      },
+      {
+        icon: <Globe className="w-8 h-8" />,
+        title: "The planet is suffering",
+        description: "Climate change, biodiversity loss, and resource depletion threaten the foundation of human civilization."
+      }
+    ]
 
-      {/* Features Grid */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Core Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Brain,
-                title: "AI-Powered Optimization",
-                description: "Advanced algorithms optimize resource allocation and coordination across all scales."
-              },
-              {
-                icon: Shield,
-                title: "Crisis Resilience",
-                description: "Distributed architecture with no single points of failure ensures system stability."
-              },
-              {
-                icon: Network,
-                title: "Democratic Governance",
-                description: "Multi-level democratic participation preserves autonomy while enabling coordination."
-              },
-              {
-                icon: Leaf,
-                title: "Regenerative Economics",
-                description: "Economic mechanisms that create abundance through circulation and cooperation."
-              },
-              {
-                icon: Globe,
-                title: "Global Coordination",
-                description: "Planetary-scale coordination through the World Game system."
-              },
-              {
-                icon: TrendingUp,
-                title: "Continuous Optimization",
-                description: "Real-time performance monitoring and adaptive improvement mechanisms."
-              }
-            ].map((feature, index) => (
+    return (
+      <section ref={problemRef} className="py-20 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 50 }}
+            animate={problemInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              The Problems We All Feel
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              These aren't separate issues—they're symptoms of a deeper problem. 
+              Our economic system was designed for a world of scarcity that no longer exists.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {problems.map((problem, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                initial={{ opacity: 0, y: 50 }}
+                animate={problemInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: index * 0.2 }}
               >
-                <Card className="h-full hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <feature.icon className="w-12 h-12 text-blue-600 mb-4" />
-                    <CardTitle>{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">{feature.description}</p>
-                  </CardContent>
-                </Card>
+                <div className="text-red-500 mb-4">
+                  {problem.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  {problem.title}
+                </h3>
+                <p className="text-gray-600">
+                  {problem.description}
+                </p>
               </motion.div>
             ))}
           </div>
+
+          <motion.div
+            className="text-center mt-16"
+            initial={{ opacity: 0 }}
+            animate={problemInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.8 }}
+          >
+            <p className="text-2xl font-semibold text-gray-800 mb-4">
+              But what if there's a better way?
+            </p>
+            <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-purple-500 mx-auto"></div>
+          </motion.div>
         </div>
       </section>
-    </div>
-  )
-}
+    )
+  }
 
-// Research page component
-function ResearchPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Research Documentation</h1>
-          <p className="text-xl text-gray-600">
-            Comprehensive scientific analysis and peer-reviewed research on the LIFE System framework.
-          </p>
-        </div>
+  // Solution section - introducing LIFE System
+  const SolutionSection = () => {
+    const [solutionRef, solutionInView] = useInView(0.3)
+    
+    return (
+      <section ref={solutionRef} className="py-20 bg-gradient-to-br from-cyan-50 to-purple-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 50 }}
+            animate={solutionInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              The LIFE System
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              A scientifically-proven framework that transforms competition into cooperation, 
+              scarcity into abundance, and isolation into community.
+            </p>
+            <div className="text-6xl mb-6">🌱</div>
+          </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Research Papers */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  Comprehensive Scientific Paper
-                </CardTitle>
-                <CardDescription>
-                  50+ page peer-review ready analysis with complete simulation methodology and results
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Status:</span>
-                    <Badge variant="secondary">Ready for Peer Review</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Pages:</span>
-                    <span>50+</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">References:</span>
-                    <span>25 Academic Sources</span>
-                  </div>
-                  <Separator />
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Key Sections:</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• Abstract & Introduction</li>
-                      <li>• Literature Review & Theoretical Foundations</li>
-                      <li>• LIFE System Framework & Components</li>
-                      <li>• Simulation Methodology & Framework</li>
-                      <li>• 17-Year Simulation Results & Analysis</li>
-                      <li>• Performance Optimization Analysis</li>
-                      <li>• Implementation Recommendations</li>
-                      <li>• Conclusions & Future Research</li>
-                    </ul>
-                  </div>
-                  <Button className="w-full">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Full Paper (PDF)
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
-                  Technical Implementation Guide
-                </CardTitle>
-                <CardDescription>
-                  Detailed technical specifications and implementation protocols
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600">
-                    Comprehensive technical documentation including algorithm specifications, 
-                    infrastructure requirements, and deployment protocols following Fuller's 
-                    Standard for System Component Definition.
-                  </p>
-                  <Button variant="outline" className="w-full">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View Technical Docs
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Research Highlights</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={solutionInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <h3 className="text-3xl font-bold text-gray-900 mb-6">
+                From Scarcity to Abundance
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex-shrink-0 mt-1"></div>
                   <div>
-                    <p className="font-medium">Global Scalability Proven</p>
-                    <p className="text-sm text-gray-600">4.6B people transformation validated</p>
+                    <h4 className="font-semibold text-gray-900">Wealth Circulation</h4>
+                    <p className="text-gray-600">Resources flow naturally where needed, creating 607% more wealth through cooperation</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                <div className="flex items-start gap-4">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex-shrink-0 mt-1"></div>
                   <div>
-                    <p className="font-medium">Superior Performance</p>
-                    <p className="text-sm text-gray-600">48% better than traditional systems</p>
+                    <h4 className="font-semibold text-gray-900">Democratic Participation</h4>
+                    <p className="text-gray-600">89% participation in decisions that affect your life and community</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                <div className="flex items-start gap-4">
+                  <div className="w-6 h-6 bg-purple-500 rounded-full flex-shrink-0 mt-1"></div>
                   <div>
-                    <p className="font-medium">Crisis Resilience</p>
-                    <p className="text-sm text-gray-600">2x better crisis response effectiveness</p>
+                    <h4 className="font-semibold text-gray-900">Crisis Resilience</h4>
+                    <p className="text-gray-600">2x better response to challenges through community support networks</p>
                   </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                  <div>
-                    <p className="font-medium">Optimization Potential</p>
-                    <p className="text-sm text-gray-600">205% performance improvement possible</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Research Team</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div>
-                    <p className="font-medium">Troy Mork</p>
-                    <p className="text-sm text-gray-600">Primary Researcher & LIFE System Creator</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Manus AI</p>
-                    <p className="text-sm text-gray-600">Technical Implementation Assistant</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Simulations page component
-function SimulationsPage() {
-  const [activeTab, setActiveTab] = useState('overview')
-
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Simulation Analysis</h1>
-          <p className="text-xl text-gray-600">
-            Comprehensive 17-year simulation comparing traditional and LIFE System performance.
-          </p>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="adoption">Adoption</TabsTrigger>
-            <TabsTrigger value="metrics">Detailed Metrics</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Simulation Framework</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium mb-2">Agent-Based Modeling</h4>
-                      <p className="text-sm text-gray-600">50,000 individual agents with sophisticated behavioral models</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Multi-Level System Dynamics</h4>
-                      <p className="text-sm text-gray-600">Individual, Community, Regional, National, and Global levels</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">17-Year Timeline</h4>
-                      <p className="text-sm text-gray-600">5-year baseline (2025-2030) + 12-year transformation (2030-2042)</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Key Findings</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">Global Scale</Badge>
-                      <span className="text-sm">4.6B people transformed</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">Performance</Badge>
-                      <span className="text-sm">48% better outcomes</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">Resilience</Badge>
-                      <span className="text-sm">2x crisis response effectiveness</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">Democracy</Badge>
-                      <span className="text-sm">89% participation rate</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Comprehensive Analysis Visualization</CardTitle>
-                <CardDescription>
-                  Complete 17-year simulation results showing system performance, adoption growth, and comparative analysis
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="w-full">
-                  <img 
-                    src={comprehensiveAnalysisImage} 
-                    alt="Comprehensive 17-Year Analysis" 
-                    className="w-full h-auto rounded-lg border"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="performance" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>System Performance Comparison (2025-2042)</CardTitle>
-                <CardDescription>
-                  Performance trajectory showing traditional system decline vs LIFE System improvement
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineChart data={performanceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="traditional" 
-                      stroke="#ef4444" 
-                      strokeWidth={3}
-                      name="Traditional System"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="life" 
-                      stroke="#22c55e" 
-                      strokeWidth={3}
-                      name="LIFE System"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Baseline Performance (2025-2030)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span>Overall Performance</span>
-                      <span className="font-medium text-red-600">30.1/100</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Median Income Change</span>
-                      <span className="font-medium text-red-600">-16.8%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Unemployment Rate</span>
-                      <span className="font-medium text-red-600">11.9%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Life Satisfaction</span>
-                      <span className="font-medium text-red-600">0.40/1.0</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>LIFE System Performance (2042)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span>Overall Performance</span>
-                      <span className="font-medium text-green-600">27.4/100</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Global Adoption</span>
-                      <span className="font-medium text-green-600">57.5%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Crisis Response</span>
-                      <span className="font-medium text-green-600">40.5%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Life Satisfaction</span>
-                      <span className="font-medium text-green-600">0.65/1.0</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="adoption" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Global Adoption Growth (2030-2042)</CardTitle>
-                <CardDescription>
-                  Scaling from 8 million to 4.6 billion participants over 12 years
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <AreaChart data={adoptionData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`${value}M people`, 'Participants']} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="participants" 
-                      stroke="#3b82f6" 
-                      fill="#3b82f6" 
-                      fillOpacity={0.3}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              {[
-                { phase: 'Foundation', years: '2030-2032', participants: '8M', success: '85%' },
-                { phase: 'Growth', years: '2032-2035', participants: '80M', success: '75%' },
-                { phase: 'Acceleration', years: '2035-2038', participants: '800M', success: '65%' },
-                { phase: 'Integration', years: '2038-2040', participants: '2.8B', success: '60%' },
-                { phase: 'Planetary', years: '2040-2042', participants: '4.6B', success: '55%' }
-              ].map((phase, index) => (
-                <Card key={index}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">{phase.phase}</CardTitle>
-                    <CardDescription className="text-xs">{phase.years}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-600">{phase.participants}</div>
-                      <div className="text-sm text-gray-600">{phase.success} success</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="metrics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Detailed Performance Metrics</CardTitle>
-                <CardDescription>
-                  Comprehensive comparison across all measured dimensions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {simulationMetrics.map((metric, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">{metric.name}</span>
-                        <Badge variant="secondary">+{metric.improvement}%</Badge>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Traditional System</span>
-                          <span>{(metric.traditional * 100).toFixed(0)}%</span>
-                        </div>
-                        <Progress value={metric.traditional * 100} className="h-2" />
-                        <div className="flex justify-between text-sm">
-                          <span>LIFE System</span>
-                          <span className="text-green-600">{(metric.life * 100).toFixed(0)}%</span>
-                        </div>
-                        <Progress value={metric.life * 100} className="h-2" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  )
-}
-
-// Optimization page component
-function OptimizationPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Performance Optimization</h1>
-          <p className="text-xl text-gray-600">
-            Pathway from 27.4/100 to 83.5/100 performance through systematic optimization.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Optimization Factors Analysis</CardTitle>
-                <CardDescription>
-                  Six key factors that can improve LIFE System performance by 205%
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={optimizationData} layout="horizontal">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" domain={[0, 16]} />
-                    <YAxis dataKey="factor" type="category" width={120} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="current" fill="#ef4444" name="Current Performance" />
-                    <Bar dataKey="potential" fill="#22c55e" name="Optimization Potential" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Implementation Roadmap</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {[
-                    {
-                      phase: 'Phase 1: Foundation (0-6 months)',
-                      target: '27.4 → 35.0 (+7.6 points)',
-                      strategies: ['Timing Optimization', 'Crisis Resilience'],
-                      milestones: [
-                        'Crisis prediction system operational',
-                        'Distributed infrastructure 50% complete',
-                        'Rapid deployment protocols established'
-                      ]
-                    },
-                    {
-                      phase: 'Phase 2: Development (6-18 months)',
-                      target: '35.0 → 55.0 (+20.0 points)',
-                      strategies: ['System Maturation', 'Resource Optimization'],
-                      milestones: [
-                        'Optimized algorithms deployed',
-                        'Funding targets 60% achieved',
-                        'Training programs operational'
-                      ]
-                    },
-                    {
-                      phase: 'Phase 3: Scaling (18-36 months)',
-                      target: '55.0 → 83.5 (+28.5 points)',
-                      strategies: ['Scaling Optimization', 'Coordination Enhancement', 'Synergy Effects'],
-                      milestones: [
-                        'Multi-level coordination systems operational',
-                        'Cultural adaptation frameworks deployed',
-                        'AI-powered coordination systems active'
-                      ]
-                    }
-                  ].map((phase, index) => (
-                    <div key={index} className="border-l-4 border-blue-500 pl-4">
-                      <h4 className="font-bold text-lg">{phase.phase}</h4>
-                      <p className="text-green-600 font-medium mb-2">{phase.target}</p>
-                      <div className="mb-3">
-                        <span className="text-sm font-medium">Strategies: </span>
-                        {phase.strategies.map((strategy, i) => (
-                          <Badge key={i} variant="outline" className="mr-1">
-                            {strategy}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium">Key Milestones:</span>
-                        <ul className="text-sm text-gray-600 mt-1">
-                          {phase.milestones.map((milestone, i) => (
-                            <li key={i}>• {milestone}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Trajectory</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-red-600">27.4/100</div>
-                    <div className="text-sm text-gray-600">Current Performance</div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <ChevronRight className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600">83.5/100</div>
-                    <div className="text-sm text-gray-600">Optimized Performance</div>
-                  </div>
-                  <div className="text-center">
-                    <Badge variant="secondary" className="text-lg px-4 py-2">
-                      +205% Improvement
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Priority Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    { action: 'Start Implementation NOW', priority: 'Critical', impact: '+15 points' },
-                    { action: 'Build Crisis-Resilient Infrastructure', priority: 'Critical', impact: '+12 points' },
-                    { action: 'Optimize Core Algorithms', priority: 'High', impact: '+12 points' },
-                    { action: 'Secure Initial Funding', priority: 'High', impact: '+8 points' }
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <div className="font-medium text-sm">{item.action}</div>
-                        <Badge 
-                          variant={item.priority === 'Critical' ? 'destructive' : 'secondary'}
-                          className="text-xs"
-                        >
-                          {item.priority}
-                        </Badge>
-                      </div>
-                      <div className="text-green-600 font-medium">{item.impact}</div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Resource Requirements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>Total Investment</span>
-                    <span className="font-medium">$100M over 3 years</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Expected ROI</span>
-                    <span className="font-medium text-green-600">560% performance/dollar</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Implementation Timeline</span>
-                    <span className="font-medium">36 months</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Success Probability</span>
-                    <span className="font-medium text-blue-600">85%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Implementation page component
-function ImplementationPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Implementation Strategy</h1>
-          <p className="text-xl text-gray-600">
-            Detailed roadmap for real-world deployment of the LIFE System framework.
-          </p>
-        </div>
-
-        <div className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Implementation Phases Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {[
-                  { phase: 'Foundation', duration: '2030-2032', population: '8M', focus: 'Pilot Programs' },
-                  { phase: 'Growth', duration: '2032-2035', population: '80M', focus: 'Regional Networks' },
-                  { phase: 'Acceleration', duration: '2035-2038', population: '800M', focus: 'National Integration' },
-                  { phase: 'Integration', duration: '2038-2040', population: '2.8B', focus: 'Continental Coordination' },
-                  { phase: 'Planetary', duration: '2040-2042', population: '4.6B', focus: 'Global Transformation' }
-                ].map((phase, index) => (
-                  <Card key={index} className="text-center">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg">{phase.phase}</CardTitle>
-                      <CardDescription>{phase.duration}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-blue-600 mb-1">{phase.population}</div>
-                      <div className="text-sm text-gray-600">{phase.focus}</div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Technical Infrastructure</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Distributed Ledger System</h4>
-                    <p className="text-sm text-gray-600">Blockchain-based system with 1000+ global nodes for resilience</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">AI Optimization Engine</h4>
-                    <p className="text-sm text-gray-600">Machine learning systems for resource allocation and coordination</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Communication Platform</h4>
-                    <p className="text-sm text-gray-600">Secure, real-time coordination across all system levels</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Mobile Applications</h4>
-                    <p className="text-sm text-gray-600">User-friendly interfaces for individual participation</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Governance Framework</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Multi-Level Democracy</h4>
-                    <p className="text-sm text-gray-600">Democratic participation from local to planetary scales</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Consensus Building</h4>
-                    <p className="text-sm text-gray-600">Structured processes for collective decision-making</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Conflict Resolution</h4>
-                    <p className="text-sm text-gray-600">Comprehensive mediation and resolution mechanisms</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Cultural Adaptation</h4>
-                    <p className="text-sm text-gray-600">Respect for diverse cultural values and practices</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Risk Management Strategy</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-orange-500" />
-                    Technical Risks
-                  </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Algorithm performance validation</li>
-                    <li>• Infrastructure failure prevention</li>
-                    <li>• Security and privacy protection</li>
-                    <li>• Scalability testing and optimization</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-blue-500" />
-                    Social Risks
-                  </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Resistance to change management</li>
-                    <li>• Cultural adaptation challenges</li>
-                    <li>• Coordination failure prevention</li>
-                    <li>• Stakeholder engagement strategies</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-green-500" />
-                    Economic Risks
-                  </h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Funding diversification strategy</li>
-                    <li>• Economic disruption mitigation</li>
-                    <li>• Transition support systems</li>
-                    <li>• Performance monitoring protocols</li>
-                  </ul>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  )
-}
+            </motion.div>
 
-// Collaboration page component
-function CollaborationPage() {
-  const [activeTab, setActiveTab] = useState('overview')
-
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Collaboration Hub</h1>
-          <p className="text-xl text-gray-600">
-            Join the global community working to implement the LIFE System framework.
-          </p>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="contribute">Contribute</TabsTrigger>
-            <TabsTrigger value="community">Community</TabsTrigger>
-            <TabsTrigger value="contact">Contact</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Github className="w-5 h-5" />
-                    Open Source Development
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Contribute to the LIFE System codebase, algorithms, and technical infrastructure.
-                  </p>
-                  <Button className="w-full">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View on GitHub
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    Research Collaboration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Join research initiatives, peer review processes, and academic publications.
-                  </p>
-                  <Button className="w-full" variant="outline">
-                    <Users className="w-4 h-4 mr-2" />
-                    Join Research Team
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Globe className="w-5 h-5" />
-                    Implementation Support
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Support pilot programs, community formation, and real-world implementation.
-                  </p>
-                  <Button className="w-full" variant="outline">
-                    <Lightbulb className="w-4 h-4 mr-2" />
-                    Get Involved
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Current Initiatives</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {[
-                    {
-                      title: 'Algorithm Optimization Project',
-                      description: 'Improving contribution recognition and resource allocation algorithms',
-                      status: 'Active',
-                      participants: 15,
-                      progress: 65
-                    },
-                    {
-                      title: 'Pilot Community Development',
-                      description: 'Establishing first LIFE System communities in multiple regions',
-                      status: 'Planning',
-                      participants: 8,
-                      progress: 25
-                    },
-                    {
-                      title: 'Crisis Resilience Research',
-                      description: 'Developing distributed infrastructure and response protocols',
-                      status: 'Active',
-                      participants: 12,
-                      progress: 40
-                    }
-                  ].map((initiative, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium">{initiative.title}</h4>
-                        <Badge variant={initiative.status === 'Active' ? 'default' : 'secondary'}>
-                          {initiative.status}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-3">{initiative.description}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">{initiative.participants} participants</span>
-                        <div className="flex items-center gap-2">
-                          <Progress value={initiative.progress} className="w-20 h-2" />
-                          <span className="text-sm text-gray-500">{initiative.progress}%</span>
-                        </div>
-                      </div>
+            <motion.div
+              className="relative"
+              initial={{ opacity: 0, x: 50 }}
+              animate={solutionInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
+              <div className="bg-white p-8 rounded-2xl shadow-xl">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-green-600 mb-2">48%</div>
+                  <p className="text-gray-600 mb-6">Better outcomes than traditional systems</p>
+                  
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                      <div className="text-2xl font-bold text-blue-600">4.6B</div>
+                      <p className="text-sm text-gray-600">People can be transformed</p>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="contribute" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ways to Contribute</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      { icon: Brain, title: 'Research & Analysis', description: 'Contribute to research, data analysis, and academic publications' },
-                      { icon: Settings, title: 'Technical Development', description: 'Develop algorithms, infrastructure, and software platforms' },
-                      { icon: Users, title: 'Community Building', description: 'Help establish and support LIFE System communities' },
-                      { icon: FileText, title: 'Documentation', description: 'Improve documentation, guides, and educational materials' },
-                      { icon: MessageSquare, title: 'Outreach & Education', description: 'Share knowledge and educate others about the LIFE System' }
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-start gap-3">
-                        <item.icon className="w-5 h-5 text-blue-600 mt-1" />
-                        <div>
-                          <h4 className="font-medium">{item.title}</h4>
-                          <p className="text-sm text-gray-600">{item.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Skill Areas Needed</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      'Machine Learning & AI',
-                      'Blockchain Development',
-                      'Systems Architecture',
-                      'Economic Modeling',
-                      'Social Science Research',
-                      'Community Organizing',
-                      'UI/UX Design',
-                      'Technical Writing',
-                      'Project Management',
-                      'Data Analysis'
-                    ].map((skill, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm">{skill}</span>
-                        <Badge variant="outline" className="text-xs">Needed</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Get Started</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button className="h-auto p-4 flex flex-col items-center gap-2">
-                    <Github className="w-6 h-6" />
-                    <span>Fork Repository</span>
-                    <span className="text-xs opacity-75">Start contributing code</span>
-                  </Button>
-                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-                    <MessageSquare className="w-6 h-6" />
-                    <span>Join Discussion</span>
-                    <span className="text-xs opacity-75">Connect with community</span>
-                  </Button>
-                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-                    <Mail className="w-6 h-6" />
-                    <span>Contact Team</span>
-                    <span className="text-xs opacity-75">Discuss collaboration</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="community" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Community Stats</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">150+</div>
-                      <div className="text-sm text-gray-600">Contributors</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">25</div>
-                      <div className="text-sm text-gray-600">Active Projects</div>
-                    </div>
-                    <div className="text-center">
+                    <div>
                       <div className="text-2xl font-bold text-purple-600">12</div>
-                      <div className="text-sm text-gray-600">Countries</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-600">5</div>
-                      <div className="text-sm text-gray-600">Pilot Communities</div>
+                      <p className="text-sm text-gray-600">Years to global change</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { user: 'Alex Chen', action: 'submitted optimization algorithm improvements', time: '2 hours ago' },
-                      { user: 'Maria Rodriguez', action: 'completed community formation guide', time: '5 hours ago' },
-                      { user: 'David Kim', action: 'published crisis resilience research', time: '1 day ago' },
-                      { user: 'Sarah Johnson', action: 'launched pilot community in Portland', time: '2 days ago' }
-                    ].map((activity, index) => (
-                      <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Users className="w-4 h-4 text-blue-600" />
+  // Proof section - showing the science
+  const ProofSection = () => {
+    const [proofRef, proofInView] = useInView(0.3)
+    
+    return (
+      <section ref={proofRef} className="py-20 bg-slate-900 text-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.div
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 50 }}
+            animate={proofInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Backed by Science
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              This isn't wishful thinking. Our comprehensive 17-year simulation study 
+              proves the LIFE System works at global scale.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            {[
+              { number: "17", label: "Years Simulated", desc: "Complete economic transformation timeline" },
+              { number: "4.6B", label: "People Modeled", desc: "Global scale validation across 8 bioregions" },
+              { number: "607%", label: "Wealth Growth", desc: "Through cooperation vs competition" }
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                className="text-center"
+                initial={{ opacity: 0, y: 50 }}
+                animate={proofInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: index * 0.2 }}
+              >
+                <div className="text-5xl font-bold text-cyan-400 mb-2">{stat.number}</div>
+                <div className="text-xl font-semibold mb-2">{stat.label}</div>
+                <div className="text-gray-400">{stat.desc}</div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            className="text-center"
+            initial={{ opacity: 0 }}
+            animate={proofInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.8 }}
+          >
+            <button 
+              onClick={() => setShowWhitepaper(true)}
+              className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 mr-4"
+            >
+              Read the Research
+            </button>
+            <p className="text-gray-400 text-sm mt-4">
+              50+ pages of peer-reviewed scientific analysis
+            </p>
+          </motion.div>
+        </div>
+      </section>
+    )
+  }
+
+  // Action section - clear next steps
+  const ActionSection = () => {
+    const [actionRef, actionInView] = useInView(0.3)
+    
+    return (
+      <section ref={actionRef} className="py-20 bg-gradient-to-br from-purple-600 to-cyan-600 text-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={actionInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              The Choice is Yours
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              You can continue accepting that "this is just how things are"... 
+              or you can be part of creating the world we all know is possible.
+            </p>
+            
+            <div className="space-y-4 mb-8">
+              <button 
+                onClick={() => setShowWhitepaper(true)}
+                className="bg-white text-purple-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 block w-full sm:inline-block sm:w-auto sm:mr-4"
+              >
+                <BookOpen className="w-5 h-5 inline mr-2" />
+                Explore the Framework
+              </button>
+              
+              <a 
+                href="mailto:research@lifesystem.org"
+                className="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-purple-600 transition-all duration-300 transform hover:scale-105 block w-full sm:inline-block sm:w-auto"
+              >
+                Join the Movement
+              </a>
+            </div>
+            
+            <p className="text-sm opacity-75">
+              Created by Troy Mork • Technical implementation by Manus AI
+            </p>
+          </motion.div>
+        </div>
+      </section>
+    )
+  }
+
+  // Beautiful whitepaper reader
+  const WhitepaperReader = () => {
+    const currentWhitepaperSection = whitepaperSections[whitepaperSection]
+    
+    return (
+      <AnimatePresence>
+        {showWhitepaper && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4 whitepaper-modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-purple-600 to-cyan-600 text-white p-6 flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold">The LIFE System Framework</h2>
+                  <p className="opacity-90">{currentWhitepaperSection.subtitle}</p>
+                </div>
+                <button
+                  onClick={() => setShowWhitepaper(false)}
+                  className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-full transition-all"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Progress bar */}
+              <div className="bg-gray-200 h-2">
+                <div 
+                  className="bg-gradient-to-r from-purple-600 to-cyan-600 h-full transition-all duration-500"
+                  style={{ width: `${((whitepaperSection + 1) / whitepaperSections.length) * 100}%` }}
+                ></div>
+              </div>
+
+              {/* Content */}
+              <div className="flex h-[calc(95vh-200px)]">
+                {/* Table of Contents */}
+                <div className="w-80 bg-gray-50 border-r border-gray-200 overflow-y-auto">
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Contents</h3>
+                    <div className="space-y-2">
+                      {whitepaperSections.map((section, index) => (
+                        <button
+                          key={section.id}
+                          onClick={() => setWhitepaperSection(index)}
+                          className={`w-full text-left p-3 rounded-lg transition-all ${
+                            index === whitepaperSection 
+                              ? 'bg-purple-100 text-purple-800 border-l-4 border-purple-600' 
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          <div className="font-medium text-sm">{section.title}</div>
+                          <div className="text-xs opacity-75 mt-1">{section.subtitle}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1 overflow-y-auto whitepaper-content">
+                  <div className="p-8">
+                    <motion.div
+                      key={whitepaperSection}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <h3 className="text-4xl font-bold text-gray-900 mb-2">
+                        {currentWhitepaperSection.title}
+                      </h3>
+                      <p className="text-xl text-gray-600 mb-8">
+                        {currentWhitepaperSection.subtitle}
+                      </p>
+                      
+                      {/* Key Points */}
+                      {currentWhitepaperSection.keyPoints && (
+                        <div className="bg-gradient-to-r from-cyan-50 to-purple-50 p-6 rounded-xl mb-8">
+                          <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
+                            <Star className="w-5 h-5 text-purple-600 mr-2" />
+                            Key Points
+                          </h4>
+                          <ul className="space-y-2">
+                            {currentWhitepaperSection.keyPoints.map((point, index) => (
+                              <li key={index} className="flex items-start">
+                                <div className="w-2 h-2 bg-purple-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                                <span className="text-gray-700">{point}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm">
-                            <span className="font-medium">{activity.user}</span> {activity.action}
-                          </p>
-                          <p className="text-xs text-gray-500">{activity.time}</p>
-                        </div>
+                      )}
+                      
+                      {/* Main Content */}
+                      <div className="prose prose-lg max-w-none">
+                        {currentWhitepaperSection.content.split('\n\n').map((paragraph, index) => {
+                          if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
+                            return (
+                              <h4 key={index} className="text-xl font-bold text-gray-900 mt-8 mb-4">
+                                {paragraph.replace(/\*\*/g, '')}
+                              </h4>
+                            )
+                          }
+                          return (
+                            <p key={index} className="text-gray-700 leading-relaxed mb-6">
+                              {paragraph.split('•').map((part, partIndex) => {
+                                if (partIndex === 0) return part
+                                return (
+                                  <span key={partIndex}>
+                                    <br />• {part}
+                                  </span>
+                                )
+                              })}
+                            </p>
+                          )
+                        })}
                       </div>
+                    </motion.div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Footer */}
+              <div className="bg-gray-50 p-6 flex justify-between items-center border-t border-gray-200">
+                <button
+                  onClick={() => setWhitepaperSection(Math.max(0, whitepaperSection - 1))}
+                  disabled={whitepaperSection === 0}
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </button>
+
+                <div className="flex items-center gap-4">
+                  <div className="flex gap-2">
+                    {whitepaperSections.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setWhitepaperSection(index)}
+                        className={`progress-dot ${
+                          index === whitepaperSection ? 'active' : 'inactive'
+                        }`}
+                      />
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Community Guidelines</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Collaboration Principles</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• Respect diverse perspectives and cultural backgrounds</li>
-                      <li>• Focus on constructive dialogue and solution-oriented discussions</li>
-                      <li>• Share knowledge openly and support others' learning</li>
-                      <li>• Maintain transparency in all collaborative activities</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Contribution Standards</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• Follow established coding and documentation standards</li>
-                      <li>• Provide clear descriptions and rationale for contributions</li>
-                      <li>• Test thoroughly and consider impact on existing systems</li>
-                      <li>• Engage in peer review and feedback processes</li>
-                    </ul>
+                  
+                  <div className="text-sm text-gray-600">
+                    {whitepaperSection + 1} of {whitepaperSections.length}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          <TabsContent value="contact" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Mail className="w-5 h-5 text-blue-600" />
-                      <div>
-                        <p className="font-medium">General Inquiries</p>
-                        <p className="text-sm text-gray-600">research@lifesystem.org</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Users className="w-5 h-5 text-green-600" />
-                      <div>
-                        <p className="font-medium">Collaboration</p>
-                        <p className="text-sm text-gray-600">collaborate@lifesystem.org</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Github className="w-5 h-5 text-gray-600" />
-                      <div>
-                        <p className="font-medium">Technical Issues</p>
-                        <p className="text-sm text-gray-600">github.com/life-system</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <MessageSquare className="w-5 h-5 text-purple-600" />
-                      <div>
-                        <p className="font-medium">Community Discussion</p>
-                        <p className="text-sm text-gray-600">discord.gg/lifesystem</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Research Team</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium">Troy Mork</h4>
-                      <p className="text-sm text-gray-600">Primary Researcher & LIFE System Creator</p>
-                      <p className="text-sm text-gray-600">research@lifesystem.org</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Manus AI</h4>
-                      <p className="text-sm text-gray-600">Technical Implementation Assistant</p>
-                      <p className="text-sm text-gray-600">technical@lifesystem.org</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Schedule a Meeting</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button className="h-auto p-4 flex flex-col items-center gap-2">
-                    <Calendar className="w-6 h-6" />
-                    <span>Research Collaboration</span>
-                    <span className="text-xs opacity-75">Discuss research opportunities</span>
-                  </Button>
-                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-                    <Settings className="w-6 h-6" />
-                    <span>Technical Discussion</span>
-                    <span className="text-xs opacity-75">Review technical implementation</span>
-                  </Button>
-                  <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-                    <Globe className="w-6 h-6" />
-                    <span>Implementation Planning</span>
-                    <span className="text-xs opacity-75">Plan pilot programs</span>
-                  </Button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setWhitepaperSection(Math.min(whitepaperSections.length - 1, whitepaperSection + 1))}
+                    disabled={whitepaperSection === whitepaperSections.length - 1}
+                    className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  
+                  <a
+                    href="/src/assets/life_system_comprehensive_scientific_paper.pdf"
+                    download
+                    className="flex items-center gap-2 px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download PDF
+                  </a>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  )
-}
-
-// Downloads page component
-function DownloadsPage() {
-  const handleDownload = (filename) => {
-    // In a real implementation, this would trigger actual file downloads
-    // For now, we'll simulate the download action
-    console.log(`Downloading ${filename}`)
-    alert(`Download started: ${filename}`)
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Downloads</h1>
-          <p className="text-xl text-gray-600">
-            Access all research papers, simulation data, and technical documentation.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            {
-              title: 'Comprehensive Scientific Paper',
-              description: '50+ page peer-review ready analysis with complete methodology and results',
-              filename: 'life_system_comprehensive_scientific_paper.pdf',
-              size: '15.2 MB',
-              type: 'PDF',
-              category: 'Research',
-              downloads: 1247
-            },
-            {
-              title: 'Final Research Report',
-              description: 'Executive summary with key findings and recommendations',
-              filename: 'life_system_final_report.pdf',
-              size: '8.7 MB',
-              type: 'PDF',
-              category: 'Research',
-              downloads: 892
-            },
-            {
-              title: 'Simulation Analysis Charts',
-              description: 'Comprehensive visualization of 17-year simulation results',
-              filename: 'comprehensive_17_year_analysis.png',
-              size: '2.1 MB',
-              type: 'PNG',
-              category: 'Visualization',
-              downloads: 634
-            },
-            {
-              title: 'Publication Charts',
-              description: 'Publication-ready charts and visualizations',
-              filename: 'life_system_publication_charts.png',
-              size: '1.8 MB',
-              type: 'PNG',
-              category: 'Visualization',
-              downloads: 521
-            },
-            {
-              title: 'Simulation Summary',
-              description: 'Detailed summary of simulation methodology and results',
-              filename: 'life_system_comprehensive_simulation_summary.md',
-              size: '156 KB',
-              type: 'Markdown',
-              category: 'Documentation',
-              downloads: 445
-            },
-            {
-              title: 'Technical Implementation Code',
-              description: 'Complete source code for all simulations and algorithms',
-              filename: 'life_system_simulation_code.zip',
-              size: '12.4 MB',
-              type: 'ZIP',
-              category: 'Code',
-              downloads: 312
-            }
-          ].map((item, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg">{item.title}</CardTitle>
-                  <Badge variant="outline">{item.category}</Badge>
-                </div>
-                <CardDescription>{item.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>File Type: {item.type}</span>
-                    <span>Size: {item.size}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Downloads: {item.downloads.toLocaleString()}</span>
-                    <span>Updated: Dec 2024</span>
-                  </div>
-                  <Button 
-                    className="w-full" 
-                    onClick={() => handleDownload(item.filename)}
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Bulk Download</CardTitle>
-            <CardDescription>
-              Download all research materials in a single archive
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Complete LIFE System Research Archive</p>
-                <p className="text-sm text-gray-600">
-                  Includes all papers, visualizations, code, and documentation
-                </p>
-                <p className="text-sm text-gray-600">Size: 45.8 MB • ZIP Archive</p>
-              </div>
-              <Button size="lg" onClick={() => handleDownload('life_system_complete_archive.zip')}>
-                <Download className="w-5 h-5 mr-2" />
-                Download All
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>License Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-4">
-              All research materials are released under the Creative Commons Attribution 4.0 International License. 
-              You are free to share, adapt, and build upon this work for any purpose, including commercial use, 
-              as long as you provide appropriate attribution.
-            </p>
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary">CC BY 4.0</Badge>
-              <Button variant="outline" size="sm">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                View License
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+    <div className="min-h-screen">
+      <HeroSection />
+      <ProblemSection />
+      <SolutionSection />
+      <ProofSection />
+      <ActionSection />
+      <WhitepaperReader />
     </div>
-  )
-}
-
-// Main App component
-function App() {
-  return (
-    <Router>
-      <div className="min-h-screen bg-white">
-        <Navigation />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/research" element={<ResearchPage />} />
-          <Route path="/simulations" element={<SimulationsPage />} />
-          <Route path="/optimization" element={<OptimizationPage />} />
-          <Route path="/implementation" element={<ImplementationPage />} />
-          <Route path="/collaboration" element={<CollaborationPage />} />
-          <Route path="/downloads" element={<DownloadsPage />} />
-        </Routes>
-      </div>
-    </Router>
   )
 }
 

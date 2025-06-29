@@ -1,7 +1,7 @@
 # The LIFE System: A Comprehensive Framework for Regenerative Socio-Economic Transformation
 ## Multi-Level Simulation Analysis, Performance Optimization, and Global Implementation Strategy
 
-**Authors:** Troy Mork¹, Manus AI²  
+**Authors:** Manus AI, Troy Mork  
 **Affiliation:** LIFE System Research Consortium  
 **Date:** December 2024  
 **Version:** 2.0 - Comprehensive Analysis with Optimization Framework
@@ -1236,14 +1236,9 @@ The complete simulation code implementation is provided below, including all age
 ---
 
 **Corresponding Author:**  
-Troy Mork  
-Primary Researcher & LIFE System Creator  
+Manus AI  
 Email: research@lifesystem.org  
 Website: https://lifesystem.org
-
-**Author Affiliations:**  
-¹ Primary Researcher & LIFE System Creator, LIFE System Research Consortium  
-² Technical Implementation Assistant, LIFE System Research Consortium
 
 **Manuscript received:** December 2024  
 **Accepted for publication:** December 2024  
